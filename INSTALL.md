@@ -7,6 +7,15 @@ This installer supports two real deployment styles:
 - Docker-based OpenEMR 7.0.2+ using the bundled compose stack
 - Host-based OpenEMR on Ubuntu EC2, where OpenEMR is already installed on the server
 
+## What the installer feels like
+
+The installer is designed for first-time students:
+
+- It explains what it detected
+- It pauses before starting so the student can read the steps
+- It gives a simple progress flow instead of dumping technical output
+- It ends with a first-login walkthrough for OpenEMR
+
 ## Before you start
 
 For Docker installs:
@@ -33,12 +42,14 @@ For host installs:
 
 On Windows, double-click `install.bat`.
 
-What happens next:
+The installer will:
 
-- The OpenEMR and simulator containers start
-- The installer waits for the services to become ready
-- The simulator container configures the OpenEMR database and order form
-- The simulator starts watching the EDI folders
+- Check whether Docker mode or host mode should be used
+- Pause and wait for you to continue
+- Start the lab
+- Wait for OpenEMR to finish starting
+- Configure the student lab
+- Show the first login and first patient steps
 
 ## Host installation on Ubuntu EC2
 
@@ -62,8 +73,12 @@ Only one of those needs to be correct.
 
 ## After installation
 
-- Log into OpenEMR with the student account for the environment
-- Create a patient
+Use the walkthrough from the installer:
+
+- Open OpenEMR in the browser
+- Sign in with the student account for the environment
+- Find the Patients menu
+- Create a test patient
 - Create a lab order using one of the sample LOINC codes
 - Wait a few seconds and refresh the chart
 - The result should appear automatically
@@ -98,3 +113,4 @@ The goal is not "any OpenEMR ever". The goal is:
 - Docker sandbox installs
 - Ubuntu EC2 host installs
 - Minimal environment-specific tweaking
+- A guided experience for first-time students
