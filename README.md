@@ -7,7 +7,7 @@ This project is designed for two supported deployment styles:
 - Bundled Docker install, where OpenEMR and the simulator run from the provided compose stack
 - Host-based Ubuntu install, where OpenEMR is already installed on an EC2 server
 
-The simulator discovers the OpenEMR site path and database settings from environment variables first, then from common install paths, and finally from a local docker-compose file if needed.
+The installer is now intentionally guided for first-time students. It checks the setup, pauses before starting, and ends with a simple first-login walkthrough.
 
 ## Supported setups
 
@@ -28,7 +28,12 @@ On Windows:
 install.bat
 ```
 
-This starts the bundled containers and then runs the installer inside the simulator container.
+The installer will:
+
+- Show a short preflight check
+- Pause so the student can read what will happen next
+- Start the lab
+- End with a first-login walkthrough for OpenEMR
 
 ## Quick start: host install
 
@@ -48,14 +53,6 @@ You can also set `OPENEMR_SITES` or `OPENEMR_SQLCONF` instead of `OPENEMR_ROOT`.
 - `OPENEMR_ROOT`: path to the OpenEMR root directory
 - `OPENEMR_SITES`: path to the OpenEMR `sites` directory
 - `OPENEMR_SQLCONF`: direct path to `sqlconf.php`
-
-## What the simulator does
-
-- Creates the `orders` and `inbox` EDI folders
-- Registers a lab provider and a small catalog of test codes
-- Loosens the lab order form validation used by the student workflow
-- Watches for new order files and generates matching result files
-- Imports result files back into OpenEMR so they appear in the patient chart
 
 ## Student workflow
 
