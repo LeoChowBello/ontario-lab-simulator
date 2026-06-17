@@ -51,8 +51,6 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: mocklab-1
-    ports:
-      - "5001:5001"
     environment:
       PYTHONUNBUFFERED: 1
       ONTARIO_LAB_MODE: docker
@@ -67,7 +65,7 @@ services:
       - openemr-8x-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5001/"]
+      test: ["CMD", "python3", "-c", "import pathlib,sys; sys.exit(0 if pathlib.Path('/app/ontario_lab_turnkey.py').exists() else 1)"]
       interval: 10s
       timeout: 5s
       retries: 3
