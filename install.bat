@@ -8,6 +8,13 @@ echo ============================================
 echo.
 
 set MODE=%ONTARIO_LAB_MODE%
+if "%MODE%"=="" (
+    if not "%OPENEMR_ROOT%"=="" set MODE=host
+    if not "%OPENEMR_SITES%"=="" set MODE=host
+    if not "%OPENEMR_SQLCONF%"=="" set MODE=host
+)
+if "%MODE%"=="" set MODE=docker
+
 if /I "%MODE%"=="host" goto host
 if exist docker-compose-8.0.x.yml goto docker
 
