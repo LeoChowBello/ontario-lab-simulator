@@ -55,6 +55,9 @@ services:
       - "5001:5001"
     environment:
       PYTHONUNBUFFERED: 1
+      ONTARIO_LAB_MODE: docker
+      OPENEMR_ROOT: /var/www/localhost/htdocs/openemr
+      OPENEMR_SQLCONF: /var/www/localhost/htdocs/openemr/sites/default/sqlconf.php
     depends_on:
       openemr-8x:
         condition: service_healthy
