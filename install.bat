@@ -1,10 +1,19 @@
 @echo off
+setlocal
+
 echo.
 echo ============================================
 echo  Ontario Lab Mocklab - Universal Installer
 echo ============================================
 echo.
 
+set MODE=%ONTARIO_LAB_MODE%
+if /I "%MODE%"=="host" goto host
+if exist docker-compose-8.0.x.yml goto docker
+
+goto host
+
+:docker
 echo Step 1: Cleaning up old containers...
 docker-compose -f docker-compose-8.0.x.yml down -v 2>nul
 
@@ -30,6 +39,19 @@ echo.
 echo Step 3: Configuring database and installing tests...
 echo.
 
+docker-compose -f docker-compose-8.0.x.yml exec -T mocklab python3 /app/ontario_lab_turnkey.py --install
+
+if %errorlevel% neq 0 (
+    echo ERROR: Installation failed.
+    pause
+    exit /b 1
+)
+
+goto done
+
+:host
+echo Running host-based installation...
+echo.
 python3 ontario_lab_turnkey.py --install
 
 if %errorlevel% neq 0 (
@@ -38,6 +60,9 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 
+goto done
+
+:done
 echo.
 echo ============================================
 echo  ✅ Installation Complete!
@@ -49,8 +74,7 @@ echo NEXT STEPS:
 echo ============================================
 echo.
 echo 1. OPEN YOUR BROWSER
-echo    Go to: http://192.168.2.26:8082
-echo    (Replace 26 with your computer's IP if different)
+echo    Go to: http://YOUR.IP.ADDRESS:8082
 echo.
 echo 2. LOGIN
 echo    Username: admin
