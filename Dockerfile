@@ -2,17 +2,14 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Install dependencies
-RUN pip install --no-cache-dir flask pymysql
+# Only one runtime dependency is needed for the simulator.
+RUN pip install --no-cache-dir pymysql
 
-# Copy mocklab files
+# Copy the universal simulator and the bundled compose file for fallback discovery.
 COPY ontario_lab_turnkey.py .
-COPY config_discovery.py .
-COPY result_importer.php .
-COPY docker-compose-8.0.x.yml docker-compose.yml
+COPY docker-compose-8.0.x.yml .
 
-# Create EDI directories
+# Create EDI directories for the bundled Docker layout.
 RUN mkdir -p /edi/orders /edi/inbox
 
-# Run the simulator (not --install, just the running mode)
 CMD ["python3", "ontario_lab_turnkey.py"]
