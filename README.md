@@ -1,99 +1,85 @@
-# Ontario Lab Simulator v1.0
+# Ontario Lab Simulator
 
-**Complete HL7 lab integration system for OpenEMR. One-click installation. No errors. No configuration.**
+Universal HL7 lab simulator for OpenEMR 7.0.2 and newer.
 
-Students create lab orders in OpenEMR. Results appear automatically in their charts in 15 seconds.
+This project is designed for two supported deployment styles:
 
-## ✅ Installation (60 seconds)
+- Bundled Docker install, where OpenEMR and the simulator run from the provided compose stack
+- Host-based Ubuntu install, where OpenEMR is already installed on an EC2 server
 
-### Windows
-```
-Double-click: install.bat
-```
+The simulator discovers the OpenEMR site path and database settings from environment variables first, then from common install paths, and finally from a local docker-compose file if needed.
 
-### Linux / Mac
-```
+## Supported setups
+
+- Docker-based OpenEMR 7.0.2+ with a mounted `sites` directory
+- Ubuntu EC2 host install with OpenEMR already present on the server
+
+## Quick start: Docker
+
+From the repository folder:
+
+```bash
 ./install.sh
 ```
 
-Everything starts automatically. When complete, open your browser.
+On Windows:
 
-## 🚀 Quick Start
-
-1. Go to: `http://192.168.2.X:8082` (use your computer's IP address)
-2. Login: `admin / pass`
-3. Create a patient
-4. Create a lab order (e.g., TSH: `3016-3`)
-5. Wait 15 seconds
-6. **Result appears in patient chart** ✓
-
-## 📚 What You're Learning
-
-- **HL7 v2.3** - Real healthcare messaging standards
-- **ORM^O01** - Lab order messages
-- **ORU^R01** - Lab result messages
-- **EDI** - Electronic data exchange
-- **Real workflow** - How hospitals integrate labs with EMRs
-
-## 🔧 Architecture
-
-```
-OpenEMR          MySQL         Mocklab
-(order UI)  ←→  (database) ←→  (simulator)
-  :8082          :3306           :5001
+```bat
+install.bat
 ```
 
-**Workflow:**
-1. You create order in OpenEMR
-2. HL7 message written to `/edi/orders/`
-3. Mocklab reads it, generates result
-4. HL7 result written to `/edi/inbox/`
-5. Result auto-imported to database
-6. Appears in patient chart
+This starts the bundled containers and then runs the installer inside the simulator container.
 
-All automatic. Zero manual steps.
+## Quick start: host install
 
-## 📖 Full Guide
+If OpenEMR is already installed on the EC2 server, set the host mode and point the simulator at the OpenEMR root or `sqlconf.php` file:
 
-See [INSTALL.md](INSTALL.md) for detailed setup and troubleshooting.
+```bash
+export ONTARIO_LAB_MODE=host
+export OPENEMR_ROOT=/var/www/localhost/htdocs/openemr
+python3 ontario_lab_turnkey.py --install
+```
 
-## ✨ What's Included
+You can also set `OPENEMR_SITES` or `OPENEMR_SQLCONF` instead of `OPENEMR_ROOT`.
 
-- OpenEMR 8.0.1 (containerized)
-- MySQL database
-- Mocklab HL7 simulator
-- Auto-result importer
-- 6 lab tests pre-configured (WBC, Hemoglobin, Glucose, TSH, Cholesterol, A1c)
+## Configuration variables
 
-## 🧪 Test the System
+- `ONTARIO_LAB_MODE`: `docker` or `host`
+- `OPENEMR_ROOT`: path to the OpenEMR root directory
+- `OPENEMR_SITES`: path to the OpenEMR `sites` directory
+- `OPENEMR_SQLCONF`: direct path to `sqlconf.php`
 
-1. Create patient "John Doe"
-2. Order "TSH" (code: 3016-3)
-3. Fill in the form, click Save
-4. Wait 15 seconds
-5. Refresh the page
-6. See result: "TSH: 2.5 mIU/L"
+## What the simulator does
 
-Done! You've just experienced a real healthcare IT workflow.
+- Creates the `orders` and `inbox` EDI folders
+- Registers a lab provider and a small catalog of test codes
+- Loosens the lab order form validation used by the student workflow
+- Watches for new order files and generates matching result files
+- Imports result files back into OpenEMR so they appear in the patient chart
 
-## 📞 Troubleshooting
+## Student workflow
 
-**Containers not starting?**
-- Make sure Docker is running
-- Check: `docker ps`
+1. Log into OpenEMR
+2. Create a patient
+3. Create a lab order for one of the sample tests
+4. Wait a few seconds
+5. Refresh the chart and confirm the result appears
 
-**Can't see the result?**
-- Wait 15 seconds (sometimes takes longer)
-- Refresh browser page
-- Check container logs: `docker logs openemr-8x-1`
+## Sample tests
 
-**Port 8082 already in use?**
-- Edit `docker-compose-8.0.x.yml`
-- Change `8082:80` to `8083:80`
-- Restart: `docker-compose up -d`
+- WBC `6690-2`
+- Hemoglobin `718-7`
+- Glucose (Fasting) `1558-6`
+- TSH `3016-3`
+- Total Cholesterol `2093-3`
+- Hemoglobin A1c `4548-4`
 
-See [INSTALL.md](INSTALL.md) for more help.
+## Troubleshooting
 
----
+- If the simulator cannot find OpenEMR, set `OPENEMR_ROOT`, `OPENEMR_SITES`, or `OPENEMR_SQLCONF`
+- If Docker mode fails, confirm Docker is running and the compose file is in the repository folder
+- If host mode fails, confirm the OpenEMR files and `sqlconf.php` are readable by the current user
 
-**Ontario Lab Simulator - Teaching Healthcare IT.** 🧪
+## Notes
+
+This is a teaching simulator. It is aimed at the supported OpenEMR deployment patterns above, not every custom OpenEMR layout ever created.
