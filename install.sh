@@ -8,7 +8,14 @@ echo "  Ontario Lab Mocklab - Universal Installer"
 echo "============================================"
 echo ""
 
-MODE="${ONTARIO_LAB_MODE:-docker}"
+MODE="${ONTARIO_LAB_MODE:-}"
+if [ -z "$MODE" ] && { [ -n "$OPENEMR_ROOT" ] || [ -n "$OPENEMR_SITES" ] || [ -n "$OPENEMR_SQLCONF" ]; }; then
+    MODE="host"
+fi
+if [ -z "$MODE" ]; then
+    MODE="docker"
+fi
+
 COMPOSE_FILE="${ONTARIO_LAB_COMPOSE:-docker-compose-8.0.x.yml}"
 
 if [ "$MODE" = "host" ]; then
