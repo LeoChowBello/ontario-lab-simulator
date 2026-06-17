@@ -1,37 +1,53 @@
 #!/bin/bash
 
+set -e
+
 echo ""
 echo "============================================"
 echo "  Ontario Lab Mocklab - Universal Installer"
 echo "============================================"
 echo ""
 
-echo "Step 1: Starting Docker containers..."
-echo "   - OpenEMR database (MySQL)"
-echo "   - OpenEMR web application"
-echo "   - Lab simulator"
-echo ""
+MODE="${ONTARIO_LAB_MODE:-docker}"
+COMPOSE_FILE="${ONTARIO_LAB_COMPOSE:-docker-compose-8.0.x.yml}"
 
-docker-compose -f docker-compose-8.0.x.yml up -d
+if [ "$MODE" = "host" ]; then
+    echo "Running host-based installation..."
+    echo ""
+    python3 ontario_lab_turnkey.py --install
+else
+    if [ ! -f "$COMPOSE_FILE" ]; then
+        echo "ERROR: $COMPOSE_FILE not found. Set ONTARIO_LAB_MODE=host for a host install."
+        exit 1
+    fi
 
-if [ $? -ne 0 ]; then
-    echo "ERROR: Docker Compose failed. Make sure Docker is running."
-    exit 1
-fi
+    echo "Step 1: Starting Docker containers..."
+    echo "   - OpenEMR database (MySQL)"
+    echo "   - OpenEMR web application"
+    echo "   - Lab simulator"
+    echo ""
 
-echo ""
-echo "Waiting 60 seconds for services to initialize..."
-sleep 60
+    docker-compose -f "$COMPOSE_FILE" up -d
 
-echo ""
-echo "Step 2: Configuring database and installing tests..."
-echo ""
+    if [ $? -ne 0 ]; then
+        echo "ERROR: Docker Compose failed. Make sure Docker is running."
+        exit 1
+    fi
 
-python3 ontario_lab_turnkey.py --install
+    echo ""
+    echo "Waiting 60 seconds for services to initialize..."
+    sleep 60
 
-if [ $? -ne 0 ]; then
-    echo "ERROR: Installation failed."
-    exit 1
+    echo ""
+    echo "Step 2: Configuring database and installing tests..."
+    echo ""
+
+    docker-compose -f "$COMPOSE_FILE" exec -T mocklab python3 /app/ontario_lab_turnkey.py --install
+
+    if [ $? -ne 0 ]; then
+        echo "ERROR: Installation failed."
+        exit 1
+    fi
 fi
 
 echo ""
@@ -46,7 +62,6 @@ echo "============================================"
 echo ""
 echo "1. OPEN YOUR BROWSER"
 echo "   Go to: http://YOUR.IP.ADDRESS:8082"
-echo "   (Find your IP with: ifconfig)"
 echo ""
 echo "2. LOGIN"
 echo "   Username: admin"
